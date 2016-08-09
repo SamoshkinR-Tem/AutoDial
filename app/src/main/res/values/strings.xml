@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Auto Dial</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="main_show_phone_call_list">android.intent.action.SHOW_PHONE_CALL_LIST</string>
+    <string name="last_phone_call_state_key">activityLpcsKey</string>
+    <string name="last_phone_call_bparty_key">activityLpbpKey</string>
+</resources>
