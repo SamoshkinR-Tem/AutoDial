@@ -25,8 +25,7 @@ public class MainActivityFragment extends Fragment {
 
     private static final String TAG = "MainActivityFragment";
 
-    private String mCurrentNumber;
-    private int mCurrPos = 0;
+    public String mCurrentNumber;
 
     public MainActivityFragment() {
     }
@@ -37,32 +36,24 @@ public class MainActivityFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
         final ArrayList<String> numbers = new ArrayList<String>();
+        numbers.add("+380930001122");
         numbers.add("+380633111444");
 
         ListView lvPhoneNumbers = (ListView) view.findViewById(R.id.lv_phone_numbers);
-        final NumbersListAdapter adapter = new NumbersListAdapter(getContext(),
-                android.R.layout.simple_list_item_1, numbers);
+        final NumbersListAdapter adapter = new NumbersListAdapter(getContext(), numbers, this);
         lvPhoneNumbers.setAdapter(adapter);
-        lvPhoneNumbers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-                mCurrentNumber = (String) parent.getItemAtPosition(position);
-                view.setBackgroundColor(Color.LTGRAY);
-                view.setId(position);
-
-                if (mCurrPos != position) {
-                    View lastView = parent.findViewById(mCurrPos);
-                    if (lastView != null){
-                        lastView.setBackgroundColor(Color.WHITE);
-                    }
-                }
-
-                mCurrPos = position;
-            }
-
-        });
+//        lvPhoneNumbers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, final View view,
+//                                    int position, long id) {
+//                mCurrentNumber = (String) parent.getItemAtPosition(position);
+//                view.setBackgroundColor(Color.LTGRAY);
+//                view.setId(position);
+//            }
+//
+//        });
 
         Button btnCall = (Button) view.findViewById(R.id.btn_call);
         btnCall.setOnClickListener(new View.OnClickListener() {
