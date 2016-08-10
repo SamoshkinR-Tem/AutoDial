@@ -2,6 +2,7 @@ package com.examaple.autodial;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,19 +19,19 @@ import java.util.List;
  */
 public class NumbersListAdapter extends BaseAdapter {
     Context context;
-    List<String> numbers;
-    HashMap<String, Integer> mIdMap = new HashMap<>();
+    List<MainActivityFragment.Number> numbers;
+    HashMap<MainActivityFragment.Number, Integer> mIdMap = new HashMap<>();
     MainActivityFragment frag;
     int currPos = 0;
     private static LayoutInflater inflater = null;
 
-    public NumbersListAdapter(Context context, List<String> numbers, MainActivityFragment frag) {
+    public NumbersListAdapter(Context context, List<MainActivityFragment.Number> numbers, MainActivityFragment frag) {
         this.numbers = numbers;
         this.context = context;
         this.frag = frag;
 
         int counter = 0;
-        for (String number : numbers) {
+        for (MainActivityFragment.Number number : numbers) {
             mIdMap.put(number, counter);
             counter++;
         }
@@ -51,7 +52,7 @@ public class NumbersListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        String item = (String) getItem(position);
+        MainActivityFragment.Number item = (MainActivityFragment.Number) getItem(position);
         return mIdMap.get(item);
     }
 
@@ -61,17 +62,18 @@ public class NumbersListAdapter extends BaseAdapter {
         rowView = inflater.inflate(R.layout.list_item_number, null);
         TextView tv = (TextView) rowView.findViewById(R.id.tv_number);
         ImageButton btnEdit = (ImageButton) rowView.findViewById(R.id.btn_edit);
-        tv.setText(numbers.get(position));
+        tv.setText(numbers.get(position).getNumber());
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "You Clicked btnEdit", Toast.LENGTH_LONG).show();
+                frag.showEditNumberDialog(position);
             }
         });
+
         rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                frag.mCurrentNumber = (String) getItem(position);
+                frag.mCurrentNumber = ((MainActivityFragment.Number) getItem(position)).getNumber();
                 view.setBackgroundColor(Color.LTGRAY);
                 view.setId(position);
 
@@ -86,6 +88,7 @@ public class NumbersListAdapter extends BaseAdapter {
 
             }
         });
+
         return rowView;
     }
 

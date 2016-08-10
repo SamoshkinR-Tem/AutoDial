@@ -1,6 +1,7 @@
 package com.examaple.autodial;
 
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -26,6 +28,8 @@ public class MainActivityFragment extends Fragment {
     private static final String TAG = "MainActivityFragment";
 
     public String mCurrentNumber;
+    ArrayList<Number> mNumbers;
+    NumbersListAdapter mAdapter;
 
     public MainActivityFragment() {
     }
@@ -35,13 +39,13 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        final ArrayList<String> numbers = new ArrayList<String>();
-        numbers.add("+380930001122");
-        numbers.add("+380633111444");
+        mNumbers = new ArrayList<>();
+        mNumbers.add(new Number("+380930001122"));
+        mNumbers.add(new Number("+380633111444"));
 
         ListView lvPhoneNumbers = (ListView) view.findViewById(R.id.lv_phone_numbers);
-        final NumbersListAdapter adapter = new NumbersListAdapter(getContext(), numbers, this);
-        lvPhoneNumbers.setAdapter(adapter);
+        mAdapter = new NumbersListAdapter(getContext(), mNumbers, this);
+        lvPhoneNumbers.setAdapter(mAdapter);
 
 //        lvPhoneNumbers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //
@@ -66,6 +70,34 @@ public class MainActivityFragment extends Fragment {
         return view;
     }
 
+    public void showEditNumberDialog(final int position){
+        // custom dialog
+        final Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.dialog_edit_number);
+
+        // set the custom dialog components - text, image and button
+        final EditText etNewNumber = (EditText) dialog.findViewById(R.id.et_new_number);
+        if (position != -1)
+            etNewNumber.setText(mNumbers.get(position).getNumber());
+
+        Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
+        // if button is clicked, close the custom dialog
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (position != -1) {
+                    mNumbers.get(position).setNumber(etNewNumber.getText().toString());
+                } else {
+                    mNumbers.add(new Number(etNewNumber.getText().toString()));
+                    mAdapter.notifyDataSetChanged();
+                }
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
     public void call(View v) {
         Log.d(TAG, "call");
 
@@ -77,6 +109,22 @@ public class MainActivityFragment extends Fragment {
             callIntent.setData(Uri.parse("tel:"+mCurrentNumber));
             callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(callIntent);
+        }
+    }
+
+    class Number{
+        private String number;
+
+        public Number(String number) {
+            this.number = number;
+        }
+
+        public String getNumber() {
+            return number;
+        }
+
+        public void setNumber(String number) {
+            this.number = number;
         }
     }
 }
