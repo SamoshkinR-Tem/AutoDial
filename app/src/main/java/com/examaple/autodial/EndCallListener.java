@@ -1,6 +1,5 @@
 package com.examaple.autodial;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
@@ -15,11 +14,11 @@ public class EndCallListener extends PhoneStateListener {
     private String TAG ="EndCallListener";
     private int     LAUNCHED = -1;
 
-    SharedPreferences prefs = PreferenceManager
+    SharedPreferences mPrefs = PreferenceManager
             .getDefaultSharedPreferences(
                     MainActivity.mApp.getBaseContext());
 
-    SharedPreferences.Editor _ed = prefs.edit();
+    SharedPreferences.Editor mPrefsEditor = mPrefs.edit();
 
     @Override
     public void onCallStateChanged(int state, String incomingNumber) {
@@ -28,11 +27,11 @@ public class EndCallListener extends PhoneStateListener {
                 _bPartyNumber = MainActivity.mApp
                         .getResources().getString(R.string.last_phone_call_bparty_key);
 
-        int mLastCallState = prefs.getInt(_prefKey, LAUNCHED);
+        int mLastCallState = mPrefs.getInt(_prefKey, LAUNCHED);
 
         //Save current call sate for next call
-        _ed.putInt(_prefKey,state);
-        _ed.commit();
+        mPrefsEditor.putInt(_prefKey,state);
+        mPrefsEditor.commit();
 
         if(TelephonyManager.CALL_STATE_RINGING == state) {
             Log.i(TAG, " >> RINGING, number: " + incomingNumber);

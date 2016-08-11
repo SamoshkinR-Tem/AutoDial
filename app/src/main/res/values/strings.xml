@@ -5,4 +5,5 @@
     <string name="main_show_phone_call_list">android.intent.action.SHOW_PHONE_CALL_LIST</string>
     <string name="last_phone_call_state_key">activityLpcsKey</string>
     <string name="last_phone_call_bparty_key">activityLpbpKey</string>
+    <string name="package_path">com.examaple.autodial</string>
 </resources>

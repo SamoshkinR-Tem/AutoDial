@@ -2,14 +2,12 @@ package com.examaple.autodial;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,12 +28,6 @@ public class NumbersListAdapter extends BaseAdapter {
         this.context = context;
         this.frag = frag;
 
-        int counter = 0;
-        for (MainActivityFragment.Number number : numbers) {
-            mIdMap.put(number, counter);
-            counter++;
-        }
-
         inflater = (LayoutInflater) context.
                 getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -45,6 +37,11 @@ public class NumbersListAdapter extends BaseAdapter {
         return numbers.size();
     }
 
+//    public void add(MainActivityFragment.Number number){
+//        numbers.add(number);
+//        mIdMap.put(number, numbers.size());
+//        notifyDataSetChanged();
+//    }
     @Override
     public Object getItem(int position) {
         return numbers.get(position);
@@ -52,8 +49,7 @@ public class NumbersListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        MainActivityFragment.Number item = (MainActivityFragment.Number) getItem(position);
-        return mIdMap.get(item);
+        return position;
     }
 
     @Override

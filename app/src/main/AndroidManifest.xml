@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -17,16 +19,25 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.intent.action.SHOW_PHONE_CALL_LIST" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.SHOW_PHONE_CALL_LIST" />
             </intent-filter>
         </activity>
 
         <receiver android:name=".PhoneStateBroadcastReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE">
-                </action></intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE"/>
+                <!--<action android:name="android.intent.action.NEW_OUTGOING_CALL" />-->
+            </intent-filter>
         </receiver>
+
+        <!--<receiver android:name=".AnswerCallBroadcastReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.PHONE_STATE" />-->
+                <!--<action android:name="android.intent.action.NEW_OUTGOING_CALL" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
     </application>
 
 </manifest>
