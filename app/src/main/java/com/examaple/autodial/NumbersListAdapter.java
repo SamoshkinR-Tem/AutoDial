@@ -69,7 +69,7 @@ public class NumbersListAdapter extends BaseAdapter {
         rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                frag.mCurrentNumber = ((MainActivityFragment.Number) getItem(position)).getNumber();
+                frag.mCurrentNumberPos = (position);
                 view.setBackgroundColor(Color.LTGRAY);
                 view.setId(position);
 

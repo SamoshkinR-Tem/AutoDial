@@ -1,11 +1,15 @@
 package com.examaple.autodial;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.CellInfo;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
@@ -20,6 +24,8 @@ import java.util.List;
 public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "PhoneStateBroadcastRec";
+    private static final String STATE = "STATE";
+
     Context mContext;
     String incoming_nr = "default";
     private int prev_state;
@@ -51,13 +57,48 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         mContext = context;
+        Log.v(TAG, "telephony.listen(customPhoneListener)");
+//            CustomPhoneStateListener customPhoneListener = new CustomPhoneStateListener();
         TelephonyManager telephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE); //TelephonyManager object
-        CustomPhoneStateListener customPhoneListener = new CustomPhoneStateListener();
-        telephony.listen(customPhoneListener, PhoneStateListener.LISTEN_CALL_STATE); //Register our listener with TelephonyManager
 
-        if(intent.getAction().equals("android.intent.action.PHONE_STATE")) {
+        int state = telephony.getCallState();
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
+
+        switch (state) {
+            case TelephonyManager.CALL_STATE_RINGING:
+                Log.d(TAG, "CALL_STATE_RINGING==>");
+                prefs.edit().putInt(STATE, state).apply();
+                break;
+            case TelephonyManager.CALL_STATE_OFFHOOK:
+                Log.d(TAG, "CALL_STATE_OFFHOOK==>");
+                prefs.edit().putInt(STATE, state).apply();
+                break;
+            case TelephonyManager.CALL_STATE_IDLE:
+                if (prefs.getInt(STATE, TelephonyManager.CALL_STATE_IDLE) == TelephonyManager.CALL_STATE_OFFHOOK) {
+                    //Answered Call which is ended or call started by this phone
+                    Log.d(TAG, "CALL_STATE_IDLE==> Answered Call ");
+                    Intent _startMainActivity =
+                            MainActivity.mApp
+                                    .getPackageManager()
+                                    .getLaunchIntentForPackage(
+                                            MainActivity.mApp.getResources()
+                                                    .getString(R.string.package_path));
+                    _startMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(_startMainActivity);
+                }
+                if (prefs.getInt(STATE, TelephonyManager.CALL_STATE_IDLE) == TelephonyManager.CALL_STATE_RINGING) {
+                    //Rejected or Missed call
+                    Log.d(TAG, "CALL_STATE_IDLE==> Rejected or Missed ");
+                }
+                break;
+        }
+//            telephony.listen(customPhoneListener, PhoneStateListener.LISTEN_CALL_STATE); //Register our listener with TelephonyManager
+        Log.v(TAG, "telephony CallState:" + String.valueOf(telephony.getCallState()));
+
+        if (intent.getAction().equals("android.intent.action.PHONE_STATE")) {
             Log.v(TAG, "phoneNr: " + intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
-        } else if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")){
+        } else if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
             Log.v(TAG, "phoneNr: " + this.getResultData());
         }
     }
@@ -66,10 +107,6 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
     public class CustomPhoneStateListener extends PhoneStateListener {
         private boolean onCall = false;
 
-        SharedPreferences mPrefs = PreferenceManager
-                .getDefaultSharedPreferences(mContext);
-
-        SharedPreferences.Editor mPrefsEditor = mPrefs.edit();
 
         @Override
         public void onCellInfoChanged(List<CellInfo> cellInfo) {
@@ -136,17 +173,17 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
-            String _prefKey = MainActivity.mApp
-                    .getResources().getString(R.string.last_phone_call_state_key),
-                    _lastNumber = MainActivity.mApp
-                            .getResources().getString(R.string.last_phone_call_bparty_key);
-
-            if (incomingNumber != null && incomingNumber.length() > 0) {
-                incoming_nr = incomingNumber;
-                //Save current call sate for next call
-                mPrefsEditor.putString(_lastNumber, incomingNumber);
-                mPrefsEditor.commit();
-            }
+//            String _prefKey = MainActivity.mApp
+//                    .getResources().getString(R.string.last_phone_call_state_key),
+//                    _lastNumber = MainActivity.mApp
+//                            .getResources().getString(R.string.last_phone_call_bparty_key);
+//
+//            if (incomingNumber != null && incomingNumber.length() > 0) {
+//                incoming_nr = incomingNumber;
+//                //Save current call sate for next call
+//                mPrefsEditor.putString(_lastNumber, incomingNumber);
+//                mPrefsEditor.commit();
+//            }
 
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
@@ -170,14 +207,15 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
                         Log.d(TAG, "CALL_STATE_IDLE==> Rejected or Missed " + incoming_nr);
                     }
 
-                    Intent _startMainActivity =
-                            MainActivity.mApp
-                                    .getPackageManager()
-                                    .getLaunchIntentForPackage(
-                                            MainActivity.mApp.getResources()
-                                                    .getString(R.string.package_path));
-                    _startMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    mContext.startActivity(_startMainActivity);
+//                    Intent _startMainActivity =
+//                            MainActivity.mApp
+//                                    .getPackageManager()
+//                                    .getLaunchIntentForPackage(
+//                                            MainActivity.mApp.getResources()
+//                                                    .getString(R.string.package_path));
+//                    _startMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    mContext.startActivity(_startMainActivity);
+
                     onCall = false;
 
                     break;

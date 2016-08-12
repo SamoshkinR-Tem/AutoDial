@@ -3,6 +3,7 @@ package com.examaple.autodial;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -22,32 +23,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final MainActivityFragment frag = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                frag.showEditNumberDialog(-1);
-
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-            }
-        });
-
         if (mApp == null) mApp = this;
 
-        //Test if we've been called to show phone call list
-        Intent _outcome = getIntent();
-        String _phoneCallAction = mApp.getResources().getString(R.string.main_show_phone_call_list);
-        String _reqAction = _outcome.getAction();//Can be null when no intent involved
-
-        //Decide if we return to the Phone Call List view
-        if (_reqAction != null && _reqAction.equals(_phoneCallAction) == true) {
-            //DO something to return to look and feel
-        }
-
-
+//        //Test if we've been called to show phone call list
+//        Intent _outcome = getIntent();
+//        String _phoneCallAction = mApp.getResources().getString(R.string.main_show_phone_call_list);
+//        String _reqAction = _outcome.getAction();//Can be null when no intent involved
+//
+//        //Decide if we return to the Phone Call List view
+//        if (_reqAction != null && _reqAction.equals(_phoneCallAction) == true) {
+//            //DO something to return to look and feel
+//        }
     }
 
     @Override
@@ -71,6 +57,16 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+//    @Override
+//    protected void onDestroy() {
+//        PreferenceManager
+//                .getDefaultSharedPreferences(this)
+//                .edit()
+//                .putBoolean(MainActivityFragment.MAKE_CALL, false)
+//                .apply();
+//        super.onDestroy();
+//    }
 }
 
 

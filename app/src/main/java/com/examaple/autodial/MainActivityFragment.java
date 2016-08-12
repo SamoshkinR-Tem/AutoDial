@@ -1,14 +1,13 @@
 package com.examaple.autodial;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,13 +30,24 @@ public class MainActivityFragment extends Fragment {
 
     private static final String TAG = "MainActivityFragment";
     private static final String NUMBERS = "NUMBERS";
+    public static final String NUMBER = "NUMBER";
+    public static final String MAKE_CALL = "MAKE_CALL";
+    private static final int DEF = -1;
 
-    public String mCurrentNumber;
+    public int mCurrentNumberPos = DEF;
     List<Number> mNumbersList;
     Set<String> mNumbersSet;
     NumbersListAdapter mAdapter;
     SharedPreferences mPrefs;
-    SharedPreferences.Editor mPrefsEditor;
+    Handler h = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            if (msg.what == DEF) {
+                if (mPrefs.getBoolean(MainActivityFragment.MAKE_CALL, false)) {
+                    call(mPrefs.getString(MainActivityFragment.NUMBER, ""));
+                }
+            }
+        }
+    };
 
     public MainActivityFragment() {
     }
@@ -45,6 +55,7 @@ public class MainActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
         mPrefs = PreferenceManager
@@ -66,7 +77,7 @@ public class MainActivityFragment extends Fragment {
 //            @Override
 //            public void onItemClick(AdapterView<?> parent, final View view,
 //                                    int position, long id) {
-//                mCurrentNumber = (String) parent.getItemAtPosition(position);
+//                mCurrentNumberPos = (String) parent.getItemAtPosition(position);
 //                view.setBackgroundColor(Color.LTGRAY);
 //                view.setId(position);
 //            }
@@ -77,11 +88,61 @@ public class MainActivityFragment extends Fragment {
         btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                call(view);
+                if (mCurrentNumberPos != DEF) {
+                    call(mNumbersList.get(mCurrentNumberPos).getNumber());
+                    mPrefs.edit().putBoolean(MAKE_CALL, true).apply();
+                }
+            }
+        });
+
+        Button btnFinish = (Button) view.findViewById(R.id.btn_finish);
+        btnFinish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPrefs.edit().putBoolean(MAKE_CALL, false).apply();
+            }
+        });
+
+        FloatingActionButton fabAdd = (FloatingActionButton) view.findViewById(R.id.fab_add);
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showEditNumberDialog(-1);
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+            }
+        });
+
+        FloatingActionButton fabDelete = (FloatingActionButton) view.findViewById(R.id.fab_delete);
+        fabDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mCurrentNumberPos != -1) {
+                    mNumbersSet.remove(mNumbersList.get(mCurrentNumberPos).getNumber());
+                    mPrefs.edit().putStringSet(NUMBERS, mNumbersSet).apply();
+                    mNumbersList.remove(mCurrentNumberPos);
+                    mCurrentNumberPos = DEF;
+                    mAdapter.notifyDataSetChanged();
+                }
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Log.d(TAG, "onResume");
+        h.sendEmptyMessageDelayed(DEF, 3000);
+
     }
 
     public void showEditNumberDialog(final int position) {
@@ -118,12 +179,10 @@ public class MainActivityFragment extends Fragment {
         dialog.show();
     }
 
-    // 0939152543 Vitaliy Holovko
-
-    public void call(View v) {
+    public void call(String number) {
         Log.d(TAG, "call");
 
-        if (mCurrentNumber == null) {
+        if (number == null) {
             Toast toast = Toast.makeText(getContext(), "Check phone number", Toast.LENGTH_LONG);
             toast.show();
         } else {
@@ -136,9 +195,11 @@ public class MainActivityFragment extends Fragment {
                                             .getString(R.string.package_path));
 
             _startMainActivity.setAction(Intent.ACTION_CALL);
-            _startMainActivity.setData(Uri.parse("tel:" + mCurrentNumber));
+            _startMainActivity.setData(Uri.parse("tel:" + number));
 
-            startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + mCurrentNumber)));
+            startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + number)));
+
+            mPrefs.edit().putString(NUMBER, number).apply();
         }
     }
 
