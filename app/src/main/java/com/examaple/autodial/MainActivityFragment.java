@@ -141,7 +141,7 @@ public class MainActivityFragment extends Fragment {
         super.onResume();
 
         Log.d(TAG, "onResume");
-        h.sendEmptyMessageDelayed(DEF, 3000);
+        h.sendEmptyMessageDelayed(DEF, 2000);
 
     }
 
